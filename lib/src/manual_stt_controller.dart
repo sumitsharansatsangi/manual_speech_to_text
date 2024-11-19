@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'manual_stt_service.dart';
 
 /// Listening states for Manual-speech-to-text
@@ -5,25 +7,29 @@ enum ManualSttState { listening, paused, stopped }
 
 class ManualSttController {
   late final ManualSttService _sttService;
+  final BuildContext context;
   void Function(ManualSttState)? _onListeningStateChanged;
   void Function(String)? _onListeningTextChanged;
   void Function(double)? _onSoundLevelChanged;
-  // Enable haptic feedback by default
   bool _enableHapticFeedback = false;
   String? _localId;
+  String _finalText = '';
 
   /// Constructor to initialize the service and set up callbacks
-  ManualSttController() {
+  ManualSttController(this.context) {
+    _initializeService();
+  }
+
+  /// initialize the service
+  void _initializeService() {
     _sttService = ManualSttService(
-      onTextChanged: (String text) {
-        _onListeningTextChanged?.call(text);
+      context,
+      onTextChanged: (liveText, finalText) {
+        _finalText += finalText;
+        _onListeningTextChanged?.call(_finalText + liveText);
       },
-      onSoundLevelChanged: (double level) {
-        _onSoundLevelChanged?.call(level);
-      },
-      onStateChanged: (ManualSttState state) {
-        _onListeningStateChanged?.call(state);
-      },
+      onSoundLevelChanged: (level) => _onSoundLevelChanged?.call(level),
+      onStateChanged: (state) => _onListeningStateChanged?.call(state),
       enableHapticFeedback: _enableHapticFeedback,
       localId: _localId,
     );
@@ -40,17 +46,23 @@ class ManualSttController {
     _onSoundLevelChanged = onSoundLevelChanged;
   }
 
+  /// handle permanently denied microphone permission
+  void handlePermanentlyDeniedPermission(VoidCallback callBack) =>
+      _sttService.permanentlyDeniedCallback = callBack;
+
   // Control methods
+  void stopStt() {
+    _finalText = '';
+    _sttService.stopRecording();
+  }
+
   void startStt() => _sttService.startRecording();
-  void stopStt() => _sttService.stopRecording();
   void pauseStt() => _sttService.pauseRecording();
   void resumeStt() => _sttService.resumeRecording();
   void dispose() => _sttService.dispose();
 
   /// Enable/disable haptic feedback
-  set enableHapticFeedback(bool enable) {
-    _enableHapticFeedback = enable;
-  }
+  set enableHapticFeedback(bool enable) => _enableHapticFeedback = enable;
 
   /// [localeId] is an optional locale that can be used to listen in a language other than the current system default.
   /// See [locales] to find the list of supported languages for listening.

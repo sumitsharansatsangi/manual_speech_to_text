@@ -16,14 +16,14 @@ class ManualSpeechRecognitionExample extends StatefulWidget {
 class _ManualSpeechRecognitionStateExample
     extends State<ManualSpeechRecognitionExample> {
   late ManualSttController _controller;
-  String _recognizedText = '';
+  String _finalRecognizedText = '';
   ManualSttState _currentState = ManualSttState.stopped;
   double _soundLevel = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = ManualSttController();
+    _controller = ManualSttController(context);
     _setupController();
   }
 
@@ -32,8 +32,8 @@ class _ManualSpeechRecognitionStateExample
       onListeningStateChanged: (state) {
         setState(() => _currentState = state);
       },
-      onListeningTextChanged: (text) {
-        setState(() => _recognizedText += text);
+      onListeningTextChanged: (recognizedText) {
+        setState(() => _finalRecognizedText = recognizedText);
       },
       onSoundLevelChanged: (level) {
         setState(() => _soundLevel = level);
@@ -45,6 +45,13 @@ class _ManualSpeechRecognitionStateExample
 
     // Optional: Enable haptic feedback
     _controller.enableHapticFeedback = true;
+
+    // Optional: Handle permanently denied microphone permission
+    _controller.handlePermanentlyDeniedPermission(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission is required')),
+      );
+    });
   }
 
   @override
@@ -62,9 +69,12 @@ class _ManualSpeechRecognitionStateExample
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('State: $_currentState'),
+            Text('State: ${_currentState.name}'),
             const SizedBox(height: 16),
-            Text('Recognized: $_recognizedText'),
+            Text(
+              'Final Recognized Text: $_finalRecognizedText',
+              style: const TextStyle(fontSize: 20),
+            ),
             const SizedBox(height: 16),
             LinearProgressIndicator(value: _soundLevel),
             const SizedBox(height: 16),
@@ -73,13 +83,11 @@ class _ManualSpeechRecognitionStateExample
               children: [
                 ElevatedButton(
                   onPressed: _currentState == ManualSttState.stopped
-                      ? () {
-                          // clearing intial recognized text
-                          _recognizedText = '';
-                          _controller.startStt();
-                        }
+                      ? _controller.startStt
                       : null,
-                  child: const Text('Start'),
+                  child: const Text(
+                    'Start',
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: _currentState == ManualSttState.listening
