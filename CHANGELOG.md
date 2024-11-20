@@ -47,3 +47,10 @@
 ### Enhancements
 
 - Now removed `AndroidManifest.xml`, so now to use this package, please add necessary code in `AndroidManifest.xml`.
+
+## 0.0.16
+
+### Enhancements
+
+- Updated `README.md` content.
+- Updated callback's functionalities like localId, enableHapticFeedback, etc.

@@ -11,8 +11,6 @@ class ManualSttController {
   void Function(ManualSttState)? _onListeningStateChanged;
   void Function(String)? _onListeningTextChanged;
   void Function(double)? _onSoundLevelChanged;
-  bool _enableHapticFeedback = false;
-  String? _localId;
   String _finalText = '';
 
   /// Constructor to initialize the service and set up callbacks
@@ -30,8 +28,6 @@ class ManualSttController {
       },
       onSoundLevelChanged: (level) => _onSoundLevelChanged?.call(level),
       onStateChanged: (state) => _onListeningStateChanged?.call(state),
-      enableHapticFeedback: _enableHapticFeedback,
-      localId: _localId,
     );
   }
 
@@ -62,11 +58,15 @@ class ManualSttController {
   void dispose() => _sttService.dispose();
 
   /// Enable/disable haptic feedback
-  set enableHapticFeedback(bool enable) => _enableHapticFeedback = enable;
+  set enableHapticFeedback(bool enable) =>
+      _sttService.enableHapticFeedback = enable;
 
   /// [localeId] is an optional locale that can be used to listen in a language other than the current system default.
   /// See [locales] to find the list of supported languages for listening.
-  set localId(String localId) {
-    _localId = localId;
-  }
+  set localId(String localId) => _sttService.localId = localId;
+
+  set permanentDenialDialogTitle(String text) =>
+      _sttService.permanentDenialDialogTitle = text;
+  set permanentDenialDialogContent(String text) =>
+      _sttService.permanentDenialDialogContent = text;
 }

@@ -10,25 +10,30 @@ class ManualSttService {
   final void Function(double) onSoundLevelChanged;
   final void Function(ManualSttState) onStateChanged;
   void Function()? permanentlyDeniedCallback;
-  final bool enableHapticFeedback;
   final BuildContext context;
+  bool? enableHapticFeedback;
+  String? permanentDenialDialogTitle;
+  String? permanentDenialDialogContent;
 
   /// [localeId] is an optional locale that can be used to listen in a language other than the current system default.
   /// See [locales] to find the list of supported languages for listening.
-  final String? localId;
+  String? localId;
 
   final SpeechToText _speechToText = SpeechToText();
   final num sampleRate;
   bool _isInitialized = false;
+
   ManualSttService(
     this.context, {
     required this.onTextChanged,
     required this.onSoundLevelChanged,
     required this.onStateChanged,
-    required this.enableHapticFeedback,
+    this.enableHapticFeedback,
     this.permanentlyDeniedCallback,
     this.localId,
     this.sampleRate = 0,
+    this.permanentDenialDialogContent,
+    this.permanentDenialDialogTitle,
   });
 
   Future<bool> _initializeStt() async {
@@ -147,8 +152,9 @@ class ManualSttService {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Microphone Permission Required'),
-        content: const Text(
+        title: Text(
+            permanentDenialDialogTitle ?? 'Microphone Permission Required'),
+        content: Text(permanentDenialDialogContent ??
             'This app needs microphone access to perform speech recognition. Please enable it in your device settings.'),
         actions: [
           TextButton(

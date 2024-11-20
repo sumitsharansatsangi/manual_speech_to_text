@@ -57,7 +57,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  manual_speech_to_text:
+  manual_speech_to_text: ^1.0.0
 ```
 
 ### Dependencies
@@ -75,17 +75,17 @@ dependencies:
 Add the following permission to your Android Manifest (`android/app/src/main/AndroidManifest.xml`):
 
 ```xml
-<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.BLUETOOTH"/>
-<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-<uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-<!-- other tags -->
-<queries>
-    <intent>
-        <action android:name="android.speech.RecognitionService" />
-    </intent>
-</queries>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.BLUETOOTH"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+  <!-- other tags -->
+  <queries>
+      <intent>
+          <action android:name="android.speech.RecognitionService" />
+      </intent>
+  </queries>
 ```
 
 ## Usage
@@ -132,9 +132,6 @@ void main() {
 
 ```dart
 
-import 'package:flutter/material.dart';
-import 'package:manual_speech_to_text/manual_speech_to_text.dart';
-
 class ManualSpeechRecognitionExample extends StatefulWidget {
   const ManualSpeechRecognitionExample({super.key});
 
@@ -179,8 +176,15 @@ class _ManualSpeechRecognitionStateExample
     // Optional: Handle permanently denied microphone permission
     _controller.handlePermanentlyDeniedPermission(() {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission is required')));
+        const SnackBar(content: Text('Microphone permission is required')),
+      );
     });
+
+    // Optional: Customize Permission Dialog
+    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.
+    _controller.permanentDenialDialogTitle = 'Microphone Access Required';
+    _controller.permanentDenialDialogContent =
+        'Speech-to-text functionality needs microphone permission.';
   }
 
   @override
@@ -264,6 +268,9 @@ The main controller class for managing speech recognition.
 
 - `enableHapticFeedback`: Enable/disable haptic feedback during recognition
 - `localId`: Set the locale for speech recognition (e.g., 'en-US')
+- `handlePermanentlyDeniedPermission`: Handle Permanently denied microphone permission
+- `permanentDenialDialogTitle` : Set the title of the permanent denialization dialog
+- `permanentDenialDialogContent` : Set the content of the permanent denialization dialog
 
 ### ManualSttState
 
@@ -275,6 +282,61 @@ enum ManualSttState {
   paused,     // Recognition is paused
   stopped     // Recognition is stopped
 }
+```
+
+## Permission Handling
+
+### Automatic Microphone Permission
+
+The package now includes built-in microphone permission handling:
+
+- Automatically requests microphone permission when speech-to-text is initiated
+- Handles first-time and permanent permission denials
+- Provides a custom dialog for permanently denied permissions
+
+#### Permanent Permission Denial Handling
+
+If microphone permission is permanently denied, the package:
+
+- Displays a dialog explaining the necessity of microphone access
+- Offers a direct link to app settings
+- Provides a default callback for custom handling
+
+Example of custom permission handling:
+
+```dart
+// Optional: Handle permanently denied microphone permission
+    _controller.handlePermanentlyDeniedPermission(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission is required')),
+      );
+    });
+```
+
+### Customizing Permission Dialog
+
+```dart
+_controller.permanentDenialDialogTitle = 'Microphone Access Required';
+_controller.permanentDenialDialogContent = 'Speech-to-text functionality needs microphone permission.';
+```
+
+### Manifest Configuration
+
+Ensure your Android Manifest (`android/app/src/main/AndroidManifest.xml`) includes:
+
+```xml
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.BLUETOOTH"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+  <!-- other tags -->
+  <queries>
+      <intent>
+          <action android:name="android.speech.RecognitionService" />
+      </intent>
+  </queries>
+
 ```
 
 ## Best Practices

@@ -52,6 +52,12 @@ class _ManualSpeechRecognitionStateExample
         const SnackBar(content: Text('Microphone permission is required')),
       );
     });
+
+    // Optional: Customize Permission Dialog
+    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.
+    _controller.permanentDenialDialogTitle = 'Microphone Access Required';
+    _controller.permanentDenialDialogContent =
+        'Speech-to-text functionality needs microphone permission.';
   }
 
   @override
