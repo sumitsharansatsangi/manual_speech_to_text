@@ -54,3 +54,9 @@
 
 - Updated `README.md` content.
 - Updated callback's functionalities like localId, enableHapticFeedback, etc.
+
+## 0.0.17
+
+### Enhancements
+
+- Updated `README.md` content.

@@ -46,12 +46,12 @@ class _ManualSpeechRecognitionStateExample
     // Optional: Enable haptic feedback
     _controller.enableHapticFeedback = true;
 
-    // Optional: Handle permanently denied microphone permission
-    _controller.handlePermanentlyDeniedPermission(() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission is required')),
-      );
-    });
+    //? Optional: Handle permanently denied microphone permission
+    // _controller.handlePermanentlyDeniedPermission(() {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Microphone permission is required')),
+    //   );
+    // });
 
     // Optional: Customize Permission Dialog
     // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.

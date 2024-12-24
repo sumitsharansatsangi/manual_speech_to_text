@@ -57,7 +57,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  manual_speech_to_text: ^1.0.0
+  manual_speech_to_text: ^0.0.17
 ```
 
 ### Dependencies
@@ -66,8 +66,8 @@ This package depends on the following packages:
 
 ```yaml
 dependencies:
-  permission_handler: ^[latest_version]
-  speech_to_text: ^[latest_version]
+  permission_handler: ^11.3.1
+  speech_to_text: ^7.0.0
 ```
 
 ### Android Setup
@@ -173,12 +173,12 @@ class _ManualSpeechRecognitionStateExample
     // Optional: Enable haptic feedback
     _controller.enableHapticFeedback = true;
 
-    // Optional: Handle permanently denied microphone permission
-    _controller.handlePermanentlyDeniedPermission(() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Microphone permission is required')),
-      );
-    });
+    //? Optional: Handle permanently denied microphone permission
+    // _controller.handlePermanentlyDeniedPermission(() {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Microphone permission is required')),
+    //   );
+    // });
 
     // Optional: Customize Permission Dialog
     // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.
