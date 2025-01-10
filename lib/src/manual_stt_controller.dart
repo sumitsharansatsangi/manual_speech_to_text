@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'manual_stt_service.dart';
@@ -12,6 +14,10 @@ class ManualSttController {
   void Function(String)? _onListeningTextChanged;
   void Function(double)? _onSoundLevelChanged;
   String _finalText = '';
+  Timer? _timer;
+
+  /// Defaults to [True]
+  bool clearTextOnStart = true;
 
   /// Constructor to initialize the service and set up callbacks
   ManualSttController(this.context) {
@@ -22,6 +28,7 @@ class ManualSttController {
   void _initializeService() {
     _sttService = ManualSttService(
       context,
+      timer: _timer,
       onTextChanged: (liveText, finalText) {
         _finalText += finalText;
         _onListeningTextChanged?.call(_finalText + liveText);
@@ -47,26 +54,38 @@ class ManualSttController {
       _sttService.permanentlyDeniedCallback = callBack;
 
   // Control methods
-  void stopStt() {
-    _finalText = '';
-    _sttService.stopRecording();
+  void startStt() {
+    if (clearTextOnStart) _finalText = '';
+    _sttService.startRecording();
   }
 
-  void startStt() => _sttService.startRecording();
+  void stopStt() => _sttService.stopRecording();
   void pauseStt() => _sttService.pauseRecording();
   void resumeStt() => _sttService.resumeRecording();
   void dispose() => _sttService.dispose();
 
-  /// Enable/disable haptic feedback
+  /// Enable/disable haptic feedback. Defaults to [False]
   set enableHapticFeedback(bool enable) =>
       _sttService.enableHapticFeedback = enable;
 
   /// [localeId] is an optional locale that can be used to listen in a language other than the current system default.
   /// See [locales] to find the list of supported languages for listening.
+  /// Defaults to [null]
   set localId(String localId) => _sttService.localId = localId;
 
+  /// Pause if mute for this duration, after this listening will pause automatically.
+  /// Defaults to [Duration(seconds:5)]
+  set pauseIfMuteFor(Duration duration) =>
+      _sttService.pauseIfMuteFor = duration;
+
+  /// Sample rate, defaults to [0]
+  set sampleRate(num sampleRate) => _sttService.sampleRate = sampleRate;
+
+  /// Defaults to ['Microphone Permission Required']
   set permanentDenialDialogTitle(String text) =>
       _sttService.permanentDenialDialogTitle = text;
+
+  /// Defaults to ['This app needs microphone access to perform speech recognition. Please enable it in your device settings.']
   set permanentDenialDialogContent(String text) =>
       _sttService.permanentDenialDialogContent = text;
 }

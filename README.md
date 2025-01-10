@@ -57,7 +57,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  manual_speech_to_text: ^0.0.17
+  manual_speech_to_text: ^1.0.0
 ```
 
 ### Dependencies
@@ -131,6 +131,12 @@ void main() {
 ### Complete Example
 
 ```dart
+import 'package:flutter/material.dart';
+import 'package:manual_speech_to_text/manual_speech_to_text.dart';
+
+void main(List<String> args) {
+  runApp(const MaterialApp(home: ManualSpeechRecognitionExample()));
+}
 
 class ManualSpeechRecognitionExample extends StatefulWidget {
   const ManualSpeechRecognitionExample({super.key});
@@ -167,11 +173,17 @@ class _ManualSpeechRecognitionStateExample
       },
     );
 
-    // Optional: Set language
-    _controller.localId = 'en-US';
+    //? Optional: clear text on start
+    // _controller.clearTextOnStart = false;
 
-    // Optional: Enable haptic feedback
-    _controller.enableHapticFeedback = true;
+    //? Optional: Set language
+    // _controller.localId = 'en-US';
+
+    //? Optional: Enable haptic feedback
+    // _controller.enableHapticFeedback = true;
+
+    //? Optional: pause if mute for specified duration
+    // _controller.pauseIfMuteFor = Duration(seconds: 10);
 
     //? Optional: Handle permanently denied microphone permission
     // _controller.handlePermanentlyDeniedPermission(() {
@@ -180,11 +192,15 @@ class _ManualSpeechRecognitionStateExample
     //   );
     // });
 
-    // Optional: Customize Permission Dialog
-    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.
-    _controller.permanentDenialDialogTitle = 'Microphone Access Required';
-    _controller.permanentDenialDialogContent =
-        'Speech-to-text functionality needs microphone permission.';
+    //? Optional: Customize Permission Dialog
+    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog's customization won't work.
+
+    //? Optional:
+    // _controller.permanentDenialDialogTitle = 'Microphone Access Required';
+
+    //? Optional:
+    // _controller.permanentDenialDialogContent =
+    //     'Speech-to-text functionality needs microphone permission.';
   }
 
   @override
@@ -271,6 +287,8 @@ The main controller class for managing speech recognition.
 - `handlePermanentlyDeniedPermission`: Handle Permanently denied microphone permission
 - `permanentDenialDialogTitle` : Set the title of the permanent denialization dialog
 - `permanentDenialDialogContent` : Set the content of the permanent denialization dialog
+- `clearTextOnStart`: Clears recognized text on [startStt()] method
+- `pauseIfMuteFor`: Pause if user doesn't speak for specified duration 
 
 ### ManualSttState
 
@@ -287,6 +305,7 @@ enum ManualSttState {
 ## Permission Handling
 
 ### Automatic Microphone Permission
+NOTE: PLEASE ADD MANIFEST CONFIGURATION IN `AndroidManifest.xml` AS MENTIONED IN DOCUMENT, FOR MORE DETAIL PLEASE REFER STANDARD `speech_to_text` PACKAGE.
 
 The package now includes built-in microphone permission handling:
 
@@ -341,16 +360,7 @@ Ensure your Android Manifest (`android/app/src/main/AndroidManifest.xml`) includ
 
 ## Best Practices
 
-1. **State Management**
-
-   ```dart
-   // Always check state before operations
-   if (_currentState != ManualSttState.stopped) {
-     await controller.stopStt();
-   }
-   ```
-
-2. **Resource Management**
+1. **Resource Management**
 
    ```dart
    // Proper disposal in StatefulWidget
@@ -361,7 +371,7 @@ Ensure your Android Manifest (`android/app/src/main/AndroidManifest.xml`) includ
    }
    ```
 
-3. **Error Handling**
+2. **Error Handling**
    ```dart
    try {
      await controller.startStt();
@@ -407,6 +417,14 @@ Ensure your Android Manifest (`android/app/src/main/AndroidManifest.xml`) includ
    - Consider enabling haptic feedback for better user experience
    - Implement error handling for network connectivity issues
    - Clear disposed controllers to prevent memory leaks
+   
+5. **Beef Sound**
+- On some devices, a beep sound is heard:
+  - At the start (after calling the `startStt` method).
+  - At the end of the conversation (after calling `stopStt` or `pauseStt` methods).
+  - During silence (if the user doesn’t speak for a certain duration, typically around 5 seconds on iOS and 2–3 seconds on Android).
+- Unfortunately, this behavior is platform-dependent and cannot be overridden.
+- As per the standard plugin documentation, this is a known limitation and cannot be customized.
 
 ### Note:
 

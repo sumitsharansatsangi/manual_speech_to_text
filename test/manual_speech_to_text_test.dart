@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:manual_speech_to_text/manual_speech_to_text.dart';
 
 void main(List<String> args) {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MaterialApp(home: ManualSpeechRecognitionExample()));
 }
 
@@ -41,11 +40,17 @@ class _ManualSpeechRecognitionStateExample
       },
     );
 
-    // Optional: Set language
-    _controller.localId = 'en-US';
+    //? Optional: clear text on start
+    // _controller.clearTextOnStart = false;
 
-    // Optional: Enable haptic feedback
-    _controller.enableHapticFeedback = true;
+    //? Optional: Set language
+    // _controller.localId = 'en-US';
+
+    //? Optional: Enable haptic feedback
+    // _controller.enableHapticFeedback = true;
+
+    //? Optional: pause if mute for specified duration
+    // _controller.pauseIfMuteFor = Duration(seconds: 10);
 
     //? Optional: Handle permanently denied microphone permission
     // _controller.handlePermanentlyDeniedPermission(() {
@@ -54,11 +59,15 @@ class _ManualSpeechRecognitionStateExample
     //   );
     // });
 
-    // Optional: Customize Permission Dialog
-    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog customization won't work.
-    _controller.permanentDenialDialogTitle = 'Microphone Access Required';
-    _controller.permanentDenialDialogContent =
-        'Speech-to-text functionality needs microphone permission.';
+    //? Optional: Customize Permission Dialog
+    // NOTE: if [handlePermanentlyDeniedPermission] this function is used, then below dialog's customization won't work.
+
+    //? Optional:
+    // _controller.permanentDenialDialogTitle = 'Microphone Access Required';
+
+    //? Optional:
+    // _controller.permanentDenialDialogContent =
+    //     'Speech-to-text functionality needs microphone permission.';
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,9 @@ class ManualSttService {
   final void Function(ManualSttState) onStateChanged;
   void Function()? permanentlyDeniedCallback;
   final BuildContext context;
+  num sampleRate;
+  Duration pauseIfMuteFor;
+  Timer? _inactivityTimer;
   bool? enableHapticFeedback;
   String? permanentDenialDialogTitle;
   String? permanentDenialDialogContent;
@@ -20,7 +24,6 @@ class ManualSttService {
   String? localId;
 
   final SpeechToText _speechToText = SpeechToText();
-  final num sampleRate;
   bool _isInitialized = false;
 
   ManualSttService(
@@ -28,6 +31,8 @@ class ManualSttService {
     required this.onTextChanged,
     required this.onSoundLevelChanged,
     required this.onStateChanged,
+    required Timer? timer,
+    this.pauseIfMuteFor = const Duration(seconds: 5),
     this.enableHapticFeedback,
     this.permanentlyDeniedCallback,
     this.localId,
@@ -64,9 +69,10 @@ class ManualSttService {
     final status = await Permission.microphone.request();
     switch (status) {
       case PermissionStatus.granted:
-        log('Microphone permission granted');
+        debugPrint('Microphone permission granted');
         return true;
       case PermissionStatus.denied:
+        //! If microphone permission is denied or if you have not configured AndroidManifest.xml changes as mention in Document, this status gets emited.
         log('Microphone permission denied');
         return false;
       case PermissionStatus.permanentlyDenied:
@@ -93,9 +99,11 @@ class ManualSttService {
       onStateChanged(ManualSttState.stopped);
       return;
     }
-
     onStateChanged(ManualSttState.listening);
-    // var manualTextResult = '';
+
+    // Start initial inactivity timer
+    _startInactivityTimer();
+
     await _speechToText.listen(
       listenOptions: SpeechListenOptions(
         partialResults: true,
@@ -104,13 +112,19 @@ class ManualSttService {
         enableHapticFeedback: enableHapticFeedback,
         sampleRate: sampleRate.toDouble(),
       ),
+      pauseFor: Duration(seconds: 2 + pauseIfMuteFor.inSeconds),
       onResult: (result) {
+        // Reset timer when sound is detected
+        _resetInactivityTimer();
+
         // emitting live text
         onTextChanged('${result.recognizedWords} ', '');
+
         // emitting final text
         if (result.finalResult) {
           onTextChanged('', '${result.recognizedWords} ');
         }
+
         // Restart listening if it was interrupted
         if (!_speechToText.isListening && result.finalResult) {
           startRecording();
@@ -122,6 +136,7 @@ class ManualSttService {
   }
 
   Future<void> stopRecording() async {
+    _inactivityTimer?.cancel();
     await _speechToText.stop();
     onStateChanged(ManualSttState.stopped);
     onSoundLevelChanged(0);
@@ -129,6 +144,7 @@ class ManualSttService {
 
   Future<void> pauseRecording() async {
     if (_speechToText.isListening) {
+      _inactivityTimer?.cancel();
       await _speechToText.stop();
       onStateChanged(ManualSttState.paused);
     }
@@ -141,7 +157,24 @@ class ManualSttService {
     }
   }
 
+  void _startInactivityTimer() {
+    _inactivityTimer?.cancel();
+    _inactivityTimer = Timer(pauseIfMuteFor, () {
+      if (_speechToText.isListening) {
+        pauseRecording();
+        log("Listening automatically paused, as you were not speaking for ${pauseIfMuteFor.inSeconds} seconds.");
+      }
+    });
+  }
+
+  void _resetInactivityTimer() {
+    if (_speechToText.isListening) {
+      _startInactivityTimer();
+    }
+  }
+
   Future<void> dispose() async {
+    _inactivityTimer?.cancel();
     await _speechToText.stop();
     _isInitialized = false;
   }
