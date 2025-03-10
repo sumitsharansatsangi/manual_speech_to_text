@@ -57,7 +57,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  manual_speech_to_text: ^1.0.0
+  manual_speech_to_text: ^1.0.1
 ```
 
 ### Dependencies

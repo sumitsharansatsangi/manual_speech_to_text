@@ -69,3 +69,11 @@
 - Optimised beef sound issue at some level.
 - And some other normal normal corrections.
 - Updated `README.md` content.
+
+
+## 1.0.1
+
+### Enhancements
+- added encapsulation for service class
+- improved the function `pauseIfMuteFor`
+- other small small improvements

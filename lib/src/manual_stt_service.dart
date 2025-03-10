@@ -1,19 +1,13 @@
-import 'dart:async';
-import 'dart:developer';
+part of 'manual_stt_controller.dart';
 
-import 'package:flutter/material.dart';
-import 'package:manual_speech_to_text/manual_speech_to_text.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-
-class ManualSttService {
+class _ManualSttService {
   final void Function(String, String) onTextChanged;
   final void Function(double) onSoundLevelChanged;
   final void Function(ManualSttState) onStateChanged;
   void Function()? permanentlyDeniedCallback;
   final BuildContext context;
-  num sampleRate;
-  Duration pauseIfMuteFor;
+  num sampleRate = 0;
+  Duration pauseIfMuteFor = const Duration(seconds: 5);
   Timer? _inactivityTimer;
   bool? enableHapticFeedback;
   String? permanentDenialDialogTitle;
@@ -26,19 +20,12 @@ class ManualSttService {
   final SpeechToText _speechToText = SpeechToText();
   bool _isInitialized = false;
 
-  ManualSttService(
+  _ManualSttService(
     this.context, {
     required this.onTextChanged,
     required this.onSoundLevelChanged,
     required this.onStateChanged,
     required Timer? timer,
-    this.pauseIfMuteFor = const Duration(seconds: 5),
-    this.enableHapticFeedback,
-    this.permanentlyDeniedCallback,
-    this.localId,
-    this.sampleRate = 0,
-    this.permanentDenialDialogContent,
-    this.permanentDenialDialogTitle,
   });
 
   Future<bool> _initializeStt() async {
@@ -107,6 +94,7 @@ class ManualSttService {
     await _speechToText.listen(
       listenOptions: SpeechListenOptions(
         partialResults: true,
+        cancelOnError: true,
         listenMode: ListenMode.dictation,
         autoPunctuation: false,
         enableHapticFeedback: enableHapticFeedback,
@@ -115,7 +103,9 @@ class ManualSttService {
       pauseFor: Duration(seconds: 2 + pauseIfMuteFor.inSeconds),
       onResult: (result) {
         // Reset timer when sound is detected
-        _resetInactivityTimer();
+        if (result.recognizedWords.isNotEmpty) {
+          _resetInactivityTimer();
+        }
 
         // emitting live text
         onTextChanged('${result.recognizedWords} ', '');
@@ -160,17 +150,13 @@ class ManualSttService {
   void _startInactivityTimer() {
     _inactivityTimer?.cancel();
     _inactivityTimer = Timer(pauseIfMuteFor, () {
-      if (_speechToText.isListening) {
-        pauseRecording();
-        log("Listening automatically paused, as you were not speaking for ${pauseIfMuteFor.inSeconds} seconds.");
-      }
+      pauseRecording();
+      log("Listening automatically paused, as you were not speaking for ${pauseIfMuteFor.inSeconds} seconds.");
     });
   }
 
   void _resetInactivityTimer() {
-    if (_speechToText.isListening) {
-      _startInactivityTimer();
-    }
+    if (_speechToText.isListening) _startInactivityTimer();
   }
 
   Future<void> dispose() async {

@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
-import 'manual_stt_service.dart';
+part 'manual_stt_service.dart';
 
 /// Listening states for Manual-speech-to-text
 enum ManualSttState { listening, paused, stopped }
 
 class ManualSttController {
-  late final ManualSttService _sttService;
+  late final _ManualSttService _sttService;
   final BuildContext context;
   void Function(ManualSttState)? _onListeningStateChanged;
   void Function(String)? _onListeningTextChanged;
@@ -26,7 +29,7 @@ class ManualSttController {
 
   /// initialize the service
   void _initializeService() {
-    _sttService = ManualSttService(
+    _sttService = _ManualSttService(
       context,
       timer: _timer,
       onTextChanged: (liveText, finalText) {
