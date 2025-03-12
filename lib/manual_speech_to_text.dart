@@ -1,3 +1,3 @@
-library manual_speech_to_text;
+library;
 
 export './src/manual_stt_controller.dart';

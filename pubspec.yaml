@@ -2,6 +2,7 @@ name: manual_speech_to_text
 description: "ManualSpeechToText allows continuous listening with custom callbacks for start, pause, resume, and stop, without automatic pauses during speech breaks."
 version: 1.0.1
 homepage: https://github.com/sagarkalel/manual_speech_to_text
+publish_to: none
 keywords:
   - speech-to-text
   - speech_to_text
@@ -22,19 +23,21 @@ keywords:
   - tts
 
 environment:
-  sdk: ^3.5.0
-  flutter: ">=1.17.0"
+  sdk: ^3.7.0
+  flutter: ">=3.27.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  permission_handler: ^11.3.1
-  speech_to_text: ^7.0.0
+  permission_handler:
+    git: https://github.com/kumsumit/permission_handler.git
+  speech_to_text:
+    git: https://github.com/kumsumit/speech_to_text.git
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
